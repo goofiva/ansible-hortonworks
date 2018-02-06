@@ -1,12 +1,12 @@
 ---
 cloud_config:
   name_suffix: ''
-  zone: 'europe-west1-d'
-  admin_username: google-user
+  zone: 'us-central1-a'
+  admin_username: ha
   ssh:
     privatekey: '~/.ssh/id_rsa'
   network:
-    name: testnetwork
+    name: vatestnetwork
     address: '10.10.0.0/16'
 
 firewall_rules:
@@ -21,30 +21,48 @@ firewall_rules:
     src_range: '0.0.0.0/0'
 
 nodes:
-  - role: "hdp-master"
+  - role: "hdp-management"
+    count: 1
+    image: centos-7
+    type: n1-highmem-4
+    public_ip: true
+    root_disk:
+      type: pd-ssd
+      size: 20
+    ambari_server: true
+
+  - role: "hdp-masternode-01"
     count: 1
     image: centos-7
     type: n1-highmem-2
     public_ip: true
     root_disk:
       type: pd-ssd
-      size: 15
-    ambari_server: true
+      size: 20
 
-  - role: "hdp-slave"
-    count: 2
+  - role: "hdp-masternode-02"
+    count: 1
     image: centos-7
-    type: n1-standard-1
+    type: n1-highmem-2
     public_ip: true
     root_disk:
       type: pd-ssd
-      size: 15
+      size: 20
 
-  - role: "hdp-edge"
-    count: 0
+  - role: "hdp-worker"
+    count: 3
     image: centos-7
-    type: n1-standard-1
+    type: n1-highmem-2
     public_ip: true
     root_disk:
-      type: pd-standard
+      type: pd-ssd
+      size: 20
+
+  - role: "hdf-worker"
+    count: 1
+    image: centos-7
+    type: n1-standard-4
+    public_ip: true
+    root_disk:
+      type: pd-ssd
       size: 20
